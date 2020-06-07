@@ -1,3 +1,5 @@
+import { SET_AUTH, SET_USER_STATUS } from './types';
+
 export const setAuth = () => async (dispatch) => {
   window.gapi.load('client:auth2', async () => {
     await window.gapi.client.init({
@@ -8,27 +10,20 @@ export const setAuth = () => async (dispatch) => {
 
     const auth = window.gapi.auth2.getAuthInstance();
 
-    dispatch({ type: 'SET_AUTH', payload: auth });
+    dispatch({ type: SET_AUTH, payload: auth });
 
     const isSignedIn = auth.isSignedIn.get();
 
-    dispatch(setSignStatus(isSignedIn));
+    const userId = auth.currentUser.get().getId();
+
+    dispatch(setUserStatus(isSignedIn, userId));
   });
-
-  // .then(() => {
-  //   const auth = window.gapi.auth2.getAuthInstance();
-
-  //   dispatch({ type: 'SET_AUTH', payload: auth });
-
-  //   const isSignedIn = auth.isSignedIn.get();
-
-  //   dispatch(setSignStatus(isSignedIn));
-  // });
 };
-export const setSignStatus = (isSignedIn) => {
+
+export const setUserStatus = (isSignedIn, userId) => {
   return {
-    type: 'SIGN_STATUS',
-    payload: isSignedIn,
+    type: SET_USER_STATUS,
+    payload: { isSignedIn, userId },
   };
 };
 
@@ -37,20 +32,29 @@ export const trySignIn = () => async (dispatch, getState) => {
 
   try {
     await auth.signIn();
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 
   const signStatus = auth.isSignedIn.get();
 
-  dispatch(setSignStatus(signStatus));
+  const userId = getState().auth.currentUser.get().getId();
+
+  dispatch(setUserStatus(signStatus, userId));
 };
 
 export const trySignOut = () => async (dispatch, getState) => {
   const auth = getState().auth;
   try {
     await auth.signOut();
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 
   const signStatus = auth.isSignedIn.get();
+  console.log(signStatus);
 
-  dispatch(setSignStatus(signStatus));
+  const userId = null;
+
+  dispatch(setUserStatus(signStatus, userId));
 };
