@@ -1,4 +1,5 @@
 import streams from '../apis/streams';
+import history from '../history';
 import {
   SET_AUTH,
   SET_USER_STATUS,
@@ -56,22 +57,32 @@ export const trySignOut = () => async (dispatch, getState) => {
   const auth = getState().auth;
   try {
     await auth.signOut();
+
+    history.push('/');
   } catch (e) {
     console.log(e);
   }
 
   const signStatus = auth.isSignedIn.get();
-  console.log(signStatus);
 
   const userId = null;
 
   dispatch(setUserStatus(signStatus, userId));
 };
 
-export const createStream = (formValues) => async (dispatch) => {
-  const response = await streams.post('/streams', formValues);
+export const createStream = (formValues) => async (dispatch, getState) => {
+  const { userId } = getState().userStatus;
+
+  const response = await streams.post('/streams', { ...formValues, userId });
 
   dispatch({ type: CREATE_STREAM, payload: response.data });
+
+  const streamId = response.data.id;
+
+  //After a stream is successfully created, we programmatically navigate the user away from the form
+
+  //Later change this to the new stream that is being created
+  history.push(`/streams/${streamId}`);
 };
 
 export const fetchStreams = () => async (dispatch) => {
@@ -87,9 +98,13 @@ export const fetchStream = (id) => async (dispatch) => {
 };
 
 export const editStream = (id, formValues) => async (dispatch) => {
-  const response = await streams.put(`/streams/${id}`, formValues);
+  const response = await streams.patch(`/streams/${id}`, {
+    ...formValues,
+  });
 
   dispatch({ type: EDIT_STREAM, payload: response.data });
+
+  history.push(`/streams/${id}`);
 };
 
 export const deleteStream = (id) => async (dispatch) => {

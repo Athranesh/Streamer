@@ -1,7 +1,13 @@
 import React from 'react';
 
-const StreamShow = () => {
-  return <div>StreamShow</div>;
+const StreamShow = (props) => {
+  return (
+    <div>
+      StreamShow
+      <hr />
+      Stream Id = {props.match.params.id}
+    </div>
+  );
 };
 
 export default StreamShow;
