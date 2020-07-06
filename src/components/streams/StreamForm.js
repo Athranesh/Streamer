@@ -36,10 +36,6 @@ class StreamForm extends React.Component {
   };
 
   render() {
-    if (this.props.initialValues) {
-      console.log(this.props.initialValues);
-    }
-
     return (
       <form
         //handle submit is a prop given by redux form, to which- our own helper method of onSubmit is passed.

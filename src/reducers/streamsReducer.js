@@ -26,7 +26,15 @@ export default (state = {}, action) => {
 
     case DELETE_STREAM:
       //Payload itself is the id
-      return { ...state, [action.payload]: undefined };
+
+      const stateAfterDelete = {};
+
+      for (let key in state) {
+        if (key !== action.payload) {
+          stateAfterDelete[key] = state[key];
+        }
+      }
+      return stateAfterDelete;
 
     default:
       return state;
